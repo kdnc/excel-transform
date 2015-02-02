@@ -1,0 +1,10 @@
+{
+  "name": "excel-transform",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "commander": "^2.6.0",
+    "msexcel-builder": "0.0.2",
+    "xlsx": "^0.7.12"
+  }
+}
