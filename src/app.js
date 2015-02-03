@@ -9,8 +9,8 @@ program
     .parse(process.argv);
 
 /*Excel sheet parsing*/
-var inFileName =  'input/' + program.infile + ".xlsx";
-var outFileName =  'output/' + program.outfile + ".xlsx";
+var inFileName =  '../input/' + program.infile + ".xlsx";
+var outFileName =  '../output/' + program.outfile + ".xlsx";
 var workbook = XLSX.readFile(inFileName);
 var sheet_name_list = workbook.SheetNames;
 
@@ -71,13 +71,27 @@ var workbook = excelbuilder.createWorkbook('./', outFileName)
 var sheet1 = workbook.createSheet('sheet1', 20, 1000);
 
 var colIndex = 0;
-var rowIndex = 0;
+var rowIndex = 1;
 
 for (var j = 0; j < empReportObj.length; j++) {
 
     var singleEmpReportObject = empReportObj[j];
     var pages = singleEmpReportObject.pages;
     var grandTotal = singleEmpReportObject.grandTotal;
+
+    sheet1.set(1, rowIndex, "Edit Report for the Batch Number");
+    sheet1.set(3, rowIndex, "MISS");
+
+    rowIndex = rowIndex + 2;
+    sheet1.set(1, rowIndex, "EMPNO");
+    sheet1.set(3, rowIndex, "PERIOD");
+
+    rowIndex = rowIndex + 1;
+    sheet1.set(1, rowIndex, "MISS");
+    sheet1.set(2, rowIndex, "MISS");
+    sheet1.set(3, rowIndex, "MISS");
+
+    rowIndex = rowIndex + 3;
 
     for (var k = 0; k < pages.length; k++) {
         var page = pages[k];
@@ -86,7 +100,7 @@ for (var j = 0; j < empReportObj.length; j++) {
         var pageKey = page.pageKey;
 
         var pageValues = pageValue.values;
-        var pageName = pageValue.name;
+        var pageName = pageValue.name.substr(0, pageValue.name.indexOf("page")) + " Total";
 
         var pageTotalCount = pageValue.totalCount;
 
@@ -102,14 +116,19 @@ for (var j = 0; j < empReportObj.length; j++) {
         rowIndex = rowIndex + 2;
         sheet1.set(1, rowIndex, pageName);
         sheet1.set(3, rowIndex, pageTotalCount);
+        rowIndex = rowIndex + 1;
+        sheet1.set(3, rowIndex, "MISS");
 
-        rowIndex = rowIndex + 2;
+        rowIndex = rowIndex + 1;
     }
 
+    rowIndex = rowIndex + 1;
     sheet1.set(1, rowIndex, "Grand Total");
     sheet1.set(3, rowIndex, grandTotal);
+    rowIndex = rowIndex + 1;
+    sheet1.set(3, rowIndex, "MISS");
 
-    rowIndex = rowIndex + 4;
+    rowIndex = rowIndex + 6;
 }
 
 // Save it
