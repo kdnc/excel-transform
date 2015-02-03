@@ -1,0 +1,8 @@
+Usage
+-----
+
+Copy the input file in to the input folder.
+
+node app.js -f input_file_name.xlsx -o output_file_name.xlsx
+
+Transformed file will be available in the output folder.
