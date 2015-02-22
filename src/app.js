@@ -20,8 +20,11 @@ sheet_name_list.forEach(function(sheetName) {
 
     var valuesPerMemArray = [];
     var valuesPerMem = {};
+    var reportObjWraper = {};
     var reportIndex = 0;
     var arr = [];
+    var isPreviousRowIsPageKey = false;
+    var isPreviousRowIsGrandTotal = false;
 
     var roa = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
     for(var i = 0; i<roa.length; i++){
@@ -31,12 +34,10 @@ sheet_name_list.forEach(function(sheetName) {
         var rowTotalCount = row["CONT"];
 
         if(rowMemNo == "Grand Total"){
-            var reportObjWraper = {};
+            reportObjWraper = {};
             reportObjWraper.grandTotal = roa[i+1]["con"];
             reportObjWraper.pages = valuesPerMemArray;
-            empReportObj[reportIndex++] = reportObjWraper;
-            valuesPerMemArray = [];
-            valuesPerMem = {};
+            isPreviousRowIsGrandTotal = true;
         } else {
             if(rowMemNo != undefined && rowMemNo.toLowerCase().indexOf('page') != -1){
                 var pageObj = {};
@@ -50,14 +51,26 @@ sheet_name_list.forEach(function(sheetName) {
                 }
                 valuesPerMem.pageKey = rowMemNo;
                 valuesPerMem.pageValue = pageObj;
-                valuesPerMemArray.push(valuesPerMem);
-                valuesPerMem = {};
-                arr = [];
+                isPreviousRowIsPageKey = true;
             } else if(rowMemNo != undefined && rowConNo != undefined && rowMemNo != "MEMNO"){
                 var memValue = {};
                 memValue.key = rowMemNo;
                 memValue.value = rowConNo;
                 arr.push(memValue);
+            } else if(rowMemNo == undefined && rowConNo != undefined && rowTotalCount == undefined && isPreviousRowIsPageKey){
+                var carryingOutBalance = rowConNo;
+                valuesPerMem.carryingOutBalance = carryingOutBalance;
+                valuesPerMemArray.push(valuesPerMem);
+                arr = [];
+                valuesPerMem = {};
+                isPreviousRowIsPageKey = false;
+            } else if(rowMemNo == undefined && rowConNo != undefined && rowTotalCount == undefined && isPreviousRowIsGrandTotal){
+                var carryingOutGrandTotalBalance = rowConNo;
+                reportObjWraper.carryingOutGrandTotalBalance = carryingOutGrandTotalBalance;
+                empReportObj[reportIndex++] = reportObjWraper;
+                valuesPerMemArray = [];
+                valuesPerMem = {};
+                isPreviousRowIsGrandTotal = false;
             }
         }
     }
@@ -87,6 +100,7 @@ for (var j = 0; j < empReportObj.length; j++) {
     var singleEmpReportObject = empReportObj[j];
     var pages = singleEmpReportObject.pages;
     var grandTotal = singleEmpReportObject.grandTotal;
+    var carryingOutGrandTotal = singleEmpReportObject.carryingOutGrandTotalBalance;
 
     sheet1.set(1, rowIndex, "Edit Report for the Batch Number");
     sheet1.set(3, rowIndex, "MISS");
@@ -107,9 +121,11 @@ for (var j = 0; j < empReportObj.length; j++) {
 
         var pageValue = page.pageValue;
         var pageKey = page.pageKey;
+        var carryingOutBalance = page.carryingOutBalance;
 
         var pageValues = pageValue.values;
-        var pageName = pageValue.name.substr(0, pageValue.name.toLowerCase().indexOf("page")) + " Total";
+        //var pageName = pageValue.name.substr(0, pageValue.name.toLowerCase().indexOf("page")) + " Total";
+        var pageName = pageValue.name;
 
         var pageTotalCount = pageValue.totalCount;
 
@@ -126,7 +142,8 @@ for (var j = 0; j < empReportObj.length; j++) {
         sheet1.set(1, rowIndex, pageName);
         sheet1.set(3, rowIndex, pageTotalCount);
         rowIndex = rowIndex + 1;
-        sheet1.set(3, rowIndex, "MISS");
+        //sheet1.set(3, rowIndex, "MISS");
+        sheet1.set(3, rowIndex, carryingOutBalance)
 
         rowIndex = rowIndex + 1;
     }
@@ -135,7 +152,7 @@ for (var j = 0; j < empReportObj.length; j++) {
     sheet1.set(1, rowIndex, "Grand Total");
     sheet1.set(3, rowIndex, grandTotal);
     rowIndex = rowIndex + 1;
-    sheet1.set(3, rowIndex, "MISS");
+    sheet1.set(3, rowIndex, carryingOutGrandTotal);
 
     rowIndex = rowIndex + 6;
 }
