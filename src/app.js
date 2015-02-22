@@ -38,7 +38,7 @@ sheet_name_list.forEach(function(sheetName) {
             valuesPerMemArray = [];
             valuesPerMem = {};
         } else {
-            if(rowMemNo != undefined && rowMemNo.indexOf('page') != -1){
+            if(rowMemNo != undefined && rowMemNo.toLowerCase().indexOf('page') != -1){
                 var pageObj = {};
                 pageObj.name = rowMemNo;
                 pageObj.values = arr;
@@ -66,9 +66,18 @@ sheet_name_list.forEach(function(sheetName) {
 // Create a new workbook file in current working-path
 var workbook = excelbuilder.createWorkbook('./', outFileName)
 
-/*CHANGE NUM OF ROWS AND COLUMNS ACCORDINGLY*/
-// Create a new worksheet with 10 columns and 12 rows
-var sheet1 = workbook.createSheet('sheet1', 20, 1000);
+/* ---- BEGIN - IMPORTANT
+* CHANGE NUM OF ROWS AND COLUMNS ACCORDINGLY
+* HAVING LESS ROWS OR COLUMNS WOULD GIVE THE FOLLOWING ERROR */
+// Create a new worksheet with 20 columns and 50,000 rows
+
+//return this.data[row][col].v = this.book.ss.str2id('' + str);
+//^
+//TypeError: Cannot read property '1' of undefined
+//at Sheet.set (/media/nuwan/Software Engineering/projects/clients/excel-transform/src/node_modules/msexcel-builder/lib/msexcel-builder.js:337:28)
+
+/* ---- END - IMPORTANT  */
+var sheet1 = workbook.createSheet('sheet1', 20, 50000);
 
 var colIndex = 0;
 var rowIndex = 1;
@@ -100,7 +109,7 @@ for (var j = 0; j < empReportObj.length; j++) {
         var pageKey = page.pageKey;
 
         var pageValues = pageValue.values;
-        var pageName = pageValue.name.substr(0, pageValue.name.indexOf("page")) + " Total";
+        var pageName = pageValue.name.substr(0, pageValue.name.toLowerCase().indexOf("page")) + " Total";
 
         var pageTotalCount = pageValue.totalCount;
 
