@@ -35,7 +35,7 @@ sheet_name_list.forEach(function(sheetName) {
 
         if(rowMemNo == "Grand Total"){
             reportObjWraper = {};
-            reportObjWraper.grandTotal = roa[i+1]["con"];
+            reportObjWraper.grandTotal = rowTotalCount;
             reportObjWraper.pages = valuesPerMemArray;
             isPreviousRowIsGrandTotal = true;
         } else {
